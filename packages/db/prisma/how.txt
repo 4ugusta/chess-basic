@@ -1,0 +1,32 @@
+model User {
+  id           Int     @id @default(autoincrement()) // Primary key for the User table, auto-incremented.
+  username     String  @unique // Unique username for each user.
+  player1Games Game[]  @relation("Player1Games") // Relation for games where the user is player 1.
+  player2Games Game[]  @relation("Player2Games") // Relation for games where the user is player 2.
+  moves        Move[]  @relation("UserMoves") // Relation for moves made by this user.
+  createdAt    DateTime @default(now()) // Timestamp for when the user was created.
+}
+
+model Game {
+  id        Int      @id @default(autoincrement()) // Primary key for the Game table, auto-incremented.
+  player1   User     @relation("Player1Games", fields: [player1Id], references: [id]) // Foreign key relation to the User model (Player 1).
+  player1Id Int // Foreign key column referencing the User table for player 1.
+  player2   User     @relation("Player2Games", fields: [player2Id], references: [id]) // Foreign key relation to the User model (Player 2).
+  player2Id Int // Foreign key column referencing the User table for player 2.
+  moves     Move[]   // One-to-many relation with the Move model.
+  winner    String?  // Optional column to store the winner of the game.
+  startTime DateTime @default(now()) // Timestamp for when the game started.
+  endTime   DateTime? // Optional timestamp for when the game ended.
+}
+
+model Move {
+  id        Int      @id @default(autoincrement()) // Primary key for the Move table, auto-incremented.
+  game      Game     @relation(fields: [gameId], references: [id]) // Foreign key relation to the Game model.
+  gameId    Int      // Foreign key column referencing the Game table.
+  from      String   // The starting position of the move.
+  to        String   // The ending position of the move.
+  player    User     @relation("UserMoves", fields: [playerId], references: [id]) // Foreign key relation to the User model (the player who made the move).
+  playerId  Int      // Foreign key column referencing the User table.
+  moveNum   Int      // The move number in the sequence of moves for the game.
+  createdAt DateTime @default(now()) // Timestamp for when the move was made.
+}
